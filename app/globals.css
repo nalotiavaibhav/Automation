@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-flowmax-accent: var(--flowmax-accent);
+  --color-flowmax-accent-light: var(--flowmax-accent-light);
+  --color-flowmax-navy: var(--flowmax-navy);
+  --color-flowmax-navy-light: var(--flowmax-navy-light);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -49,6 +53,10 @@
 }
 
 :root {
+  --flowmax-accent: #f59e0b;
+  --flowmax-accent-light: #fbbf24;
+  --flowmax-navy: #0f172a;
+  --flowmax-navy-light: #1e293b;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
