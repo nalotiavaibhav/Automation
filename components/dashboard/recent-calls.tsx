@@ -25,7 +25,7 @@ export function RecentCalls() {
   const calls = recentCalls.slice(0, 5);
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col ag-glass ag-float-card rounded-xl">
       <CardHeader>
         <CardTitle>Recent Calls</CardTitle>
       </CardHeader>
@@ -35,10 +35,10 @@ export function RecentCalls() {
             <Link
               key={call.id}
               href={`/calls/${call.id}`}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted/50"
+              className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-300 hover:bg-white/60 hover:translate-x-1 hover:shadow-[inset_0_0_0_1px_rgba(245,158,11,0.1)]"
             >
               <div
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 ${
                   call.status === 'completed'
                     ? 'bg-green-50 text-green-600'
                     : 'bg-red-50 text-red-600'
@@ -77,7 +77,7 @@ export function RecentCalls() {
       <CardFooter className="justify-center">
         <Link
           href="/calls"
-          className="text-sm font-medium text-primary hover:underline"
+          className="text-sm font-medium text-primary transition-all duration-300 hover:underline hover:tracking-wide"
         >
           View All Calls
         </Link>

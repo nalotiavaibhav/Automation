@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import {
-  LineChart,
+  ComposedChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -23,13 +24,14 @@ export function CallsChart() {
   const data = range === '7d' ? callsChartData7Days : callsChartData30Days;
 
   return (
-    <Card>
+    <Card className="ag-glass ag-float-card rounded-xl">
       <CardHeader className="flex-row items-center justify-between">
         <CardTitle>Call Volume</CardTitle>
-        <div className="flex items-center gap-1 rounded-lg bg-muted p-0.5">
+        <div className="flex items-center gap-1 rounded-full ag-glass p-0.5">
           <Button
             variant={range === '7d' ? 'default' : 'ghost'}
             size="xs"
+            className="rounded-full transition-all duration-300"
             onClick={() => setRange('7d')}
           >
             7 Days
@@ -37,16 +39,27 @@ export function CallsChart() {
           <Button
             variant={range === '30d' ? 'default' : 'ghost'}
             size="xs"
+            className="rounded-full transition-all duration-300"
             onClick={() => setRange('30d')}
           >
             30 Days
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="ag-enter">
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <ComposedChart data={data}>
+            <defs>
+              <linearGradient id="callsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.12} />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="bookingsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity={0.12} />
+                <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" />
             <XAxis
               dataKey="date"
               tick={{ fontSize: 12 }}
@@ -61,9 +74,11 @@ export function CallsChart() {
             />
             <Tooltip
               contentStyle={{
-                borderRadius: '8px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(12px)',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
                 fontSize: '13px',
               }}
             />
@@ -71,6 +86,18 @@ export function CallsChart() {
               iconType="circle"
               iconSize={8}
               wrapperStyle={{ fontSize: '13px', paddingTop: '8px' }}
+            />
+            <Area
+              type="monotone"
+              dataKey="calls"
+              fill="url(#callsAreaGrad)"
+              stroke="transparent"
+            />
+            <Area
+              type="monotone"
+              dataKey="bookings"
+              fill="url(#bookingsAreaGrad)"
+              stroke="transparent"
             />
             <Line
               type="monotone"
@@ -90,7 +117,7 @@ export function CallsChart() {
               dot={{ r: 3, fill: '#10b981' }}
               activeDot={{ r: 5 }}
             />
-          </LineChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>

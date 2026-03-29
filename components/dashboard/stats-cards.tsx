@@ -12,18 +12,25 @@ interface StatCardProps {
   trend: number;
   icon: React.ReactNode;
   color: string;
+  glowClass: string;
   sparkData: { v: number }[];
 }
 
-function StatCard({ title, value, trend, icon, color, sparkData }: StatCardProps) {
+function StatCard({ title, value, trend, icon, color, glowClass, sparkData }: StatCardProps) {
   const isPositive = trend >= 0;
 
   return (
     <Card
-      className="hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 border-l-4 overflow-visible"
-      style={{ borderLeftColor: color }}
+      className={`group ag-float-card ag-glass ${glowClass} rounded-xl overflow-hidden relative`}
     >
-      <CardContent className="pt-1 pb-1">
+      {/* Top gradient bar */}
+      <div
+        className="absolute top-0 left-0 right-0 h-0.5"
+        style={{
+          background: `linear-gradient(to right, ${color}, transparent)`,
+        }}
+      />
+      <CardContent className="pt-4 pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -52,7 +59,7 @@ function StatCard({ title, value, trend, icon, color, sparkData }: StatCardProps
             </div>
           </div>
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-lg"
+            className="flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110"
             style={{ backgroundColor: `${color}1A` }}
           >
             <div style={{ color }}>{icon}</div>
@@ -74,7 +81,9 @@ function StatCard({ title, value, trend, icon, color, sparkData }: StatCardProps
                 strokeWidth={1.5}
                 fill={`url(#spark-${title.replace(/\s/g, '')})`}
                 dot={false}
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={1200}
+                animationEasing="ease-out"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -88,13 +97,14 @@ export function StatsCards() {
   const stats = dashboardStats;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ag-stagger-children">
       <StatCard
         title="Total Calls Today"
         value={stats.totalCalls.toString()}
         trend={stats.totalCallsTrend}
         icon={<Phone className="h-5 w-5" />}
         color="#3b82f6"
+        glowClass="ag-glow-blue"
         sparkData={sparklineData.totalCalls}
       />
       <StatCard
@@ -103,6 +113,7 @@ export function StatsCards() {
         trend={stats.bookingsTrend}
         icon={<Calendar className="h-5 w-5" />}
         color="#10b981"
+        glowClass="ag-glow-green"
         sparkData={sparklineData.bookings}
       />
       <StatCard
@@ -111,6 +122,7 @@ export function StatsCards() {
         trend={stats.missedCallsTrend}
         icon={<PhoneOff className="h-5 w-5" />}
         color="#f59e0b"
+        glowClass="ag-glow-amber"
         sparkData={sparklineData.missedRecovered}
       />
       <StatCard
@@ -119,6 +131,7 @@ export function StatsCards() {
         trend={stats.revenueTrend}
         icon={<DollarSign className="h-5 w-5" />}
         color="#8b5cf6"
+        glowClass="ag-glow-purple"
         sparkData={sparklineData.revenue}
       />
     </div>

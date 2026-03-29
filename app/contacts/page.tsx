@@ -141,7 +141,7 @@ export default function ContactsPage() {
     return (
       <TableHead>
         <button
-          className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1 hover:text-flowmax-accent transition-all duration-200"
           onClick={() => handleSort(field)}
         >
           {children}
@@ -153,27 +153,27 @@ export default function ContactsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div>
+      <div className="ag-enter">
         <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
         <p className="text-gray-500 mt-1">
           All contacts across your pipeline ({allContacts.length} total)
         </p>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="group relative max-w-sm">
+        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors duration-300 group-focus-within:text-flowmax-accent" />
         <Input
           placeholder="Search by name, phone, or service..."
-          className="pl-9"
+          className="pl-9 bg-white/50 transition-all duration-300 border-white/40 focus-visible:shadow-[0_0_20px_rgba(245,158,11,0.12)] focus-visible:border-flowmax-accent/40"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="rounded-xl border bg-card">
+      <div className="rounded-xl ag-glass ag-float-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-white/40 backdrop-blur-sm border-b border-white/20">
               <SortableHeader field="name">Name</SortableHeader>
               <TableHead>Phone</TableHead>
               <TableHead>Service</TableHead>
@@ -188,7 +188,7 @@ export default function ContactsPage() {
               const status = statusConfig[contact.status];
               const urgency = urgencyConfig[contact.urgency];
               return (
-                <TableRow key={contact.id}>
+                <TableRow key={contact.id} className="transition-all duration-300 hover:bg-white/60 hover:shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
                   <TableCell className="font-medium">{contact.name}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {formatPhoneNumber(contact.phone)}

@@ -142,7 +142,7 @@ export function KanbanBoard() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-4 overflow-x-auto pb-4 ag-stagger-children">
         {stages.map((stage) => (
           <KanbanColumn
             key={stage.id}
@@ -154,7 +154,11 @@ export function KanbanBoard() {
         ))}
       </div>
       <DragOverlay>
-        {activeContact ? <KanbanCard contact={activeContact} /> : null}
+        {activeContact ? (
+          <div style={{ boxShadow: 'var(--shadow-float-xl)', transform: 'rotate(3deg) scale(1.05)' }}>
+            <KanbanCard contact={activeContact} />
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   );

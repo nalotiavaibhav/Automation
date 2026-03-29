@@ -43,13 +43,30 @@ export function KanbanCard({ contact }: KanbanCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`group rounded-lg border bg-white p-3 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 ${
-        isDragging ? 'opacity-50 shadow-lg rotate-2' : ''
+      className={`group rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm p-3 transition-all duration-300 ${
+        isDragging
+          ? 'opacity-70 rotate-2 scale-105 ring-2 ring-flowmax-accent/30'
+          : 'hover:-translate-y-1'
       }`}
+      {...(isDragging
+        ? {}
+        : {
+            style: {
+              ...style,
+              boxShadow: 'var(--shadow-float)',
+            },
+          })}
     >
+      <div
+        style={
+          isDragging
+            ? { ...style, boxShadow: 'var(--shadow-float-xl)' }
+            : style
+        }
+      />
       <div className="flex items-start gap-2">
         <button
-          className="mt-0.5 cursor-grab touch-none text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+          className="mt-0.5 cursor-grab touch-none text-muted-foreground opacity-0 transition-all duration-300 group-hover:opacity-100 active:cursor-grabbing"
           {...attributes}
           {...listeners}
         >
@@ -67,7 +84,7 @@ export function KanbanCard({ contact }: KanbanCardProps) {
           </p>
           <div className="flex items-center gap-2 mt-2">
             <span
-              className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${urgency.className}`}
+              className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium transition-transform duration-200 hover:scale-105 ${urgency.className}`}
             >
               {urgency.label}
             </span>

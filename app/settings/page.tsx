@@ -28,22 +28,22 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
+      <div className="ag-enter">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-gray-500 mt-1">Configure your AI receptionist and integrations</p>
       </div>
 
       <Tabs defaultValue="business">
-        <TabsList>
-          <TabsTrigger value="business">
+        <TabsList className="ag-glass rounded-full p-1">
+          <TabsTrigger value="business" className="rounded-full transition-all duration-300 data-[state=active]:bg-white/80 data-[state=active]:shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
             <Building2 className="h-4 w-4 mr-1.5" />
             Business Profile
           </TabsTrigger>
-          <TabsTrigger value="ai">
+          <TabsTrigger value="ai" className="rounded-full transition-all duration-300 data-[state=active]:bg-white/80 data-[state=active]:shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
             <Bot className="h-4 w-4 mr-1.5" />
             AI Configuration
           </TabsTrigger>
-          <TabsTrigger value="integrations">
+          <TabsTrigger value="integrations" className="rounded-full transition-all duration-300 data-[state=active]:bg-white/80 data-[state=active]:shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
             <Plug className="h-4 w-4 mr-1.5" />
             Integrations
           </TabsTrigger>
@@ -51,7 +51,7 @@ export default function SettingsPage() {
 
         {/* Business Profile Tab */}
         <TabsContent value="business">
-          <Card>
+          <Card className="ag-glass ag-float-card rounded-xl ag-enter">
             <CardHeader>
               <CardTitle>Business Profile</CardTitle>
               <CardDescription>
@@ -67,6 +67,7 @@ export default function SettingsPage() {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="Your company name"
+                    className="transition-all duration-300 focus-visible:shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -76,6 +77,7 @@ export default function SettingsPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="(555) 000-0000"
+                    className="transition-all duration-300 focus-visible:shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
@@ -85,6 +87,7 @@ export default function SettingsPage() {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Business address"
+                    className="transition-all duration-300 focus-visible:shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -108,7 +111,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
-                <Button>Save Changes</Button>
+                <Button className="transition-all duration-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:-translate-y-px">Save Changes</Button>
               </div>
             </CardContent>
           </Card>
@@ -116,7 +119,7 @@ export default function SettingsPage() {
 
         {/* AI Configuration Tab */}
         <TabsContent value="ai">
-          <Card>
+          <Card className="ag-glass ag-float-card rounded-xl ag-enter">
             <CardHeader>
               <CardTitle>AI Configuration</CardTitle>
               <CardDescription>
@@ -133,6 +136,7 @@ export default function SettingsPage() {
                     onChange={(e) => setGreeting(e.target.value)}
                     placeholder="Enter the greeting your AI will use..."
                     rows={4}
+                    className="transition-all duration-300 focus-visible:shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                   />
                   <p className="text-xs text-muted-foreground">
                     This is the first thing callers will hear when your AI receptionist answers.
@@ -174,7 +178,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
-                <Button>Save Configuration</Button>
+                <Button className="transition-all duration-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:-translate-y-px">Save Configuration</Button>
               </div>
             </CardContent>
           </Card>

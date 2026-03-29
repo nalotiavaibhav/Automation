@@ -458,7 +458,7 @@ function LiveCallsSection() {
         return (
           <div
             key={call.id}
-            className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow duration-150 hover:shadow-md"
+            className="overflow-hidden rounded-xl ag-float-card ag-glass"
           >
             <button
               onClick={() => setExpandedId(isExpanded ? null : call.id)}
@@ -592,7 +592,7 @@ export default function TrueServicePlumbingDemo() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white">
+    <div className="relative min-h-screen overflow-hidden ag-mesh-bg">
       {/* Grain overlay */}
       <div
         className="pointer-events-none fixed inset-0 z-50 opacity-[0.03]"
@@ -606,13 +606,13 @@ export default function TrueServicePlumbingDemo() {
       {/* ------------------------------------------------------------------- */}
       {/*  A. Header / Hero                                                     */}
       {/* ------------------------------------------------------------------- */}
-      <header className="relative border-b border-slate-200 bg-gradient-to-b from-blue-50/80 to-white">
+      <header className="relative border-b border-white/20 bg-gradient-to-b from-blue-50/60 via-white/80 to-white/60 backdrop-blur-sm ag-enter">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Logo area */}
             <div className="flex items-center gap-3">
               <div
-                className="flex h-11 w-11 items-center justify-center rounded-xl shadow-sm"
+                className="flex h-11 w-11 items-center justify-center rounded-xl shadow-sm transition-transform duration-500 hover:rotate-12 hover:scale-110"
                 style={{ backgroundColor: PRIMARY }}
               >
                 <Wrench className="h-5.5 w-5.5 text-white" />
@@ -651,13 +651,13 @@ export default function TrueServicePlumbingDemo() {
         {/*  B. KPI Cards                                                      */}
         {/* ----------------------------------------------------------------- */}
         <section className="mb-12">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 ag-stagger-children">
             {kpis.map((kpi) => {
               const Icon = kpi.icon;
               return (
                 <div
                   key={kpi.label}
-                  className={`group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md ${kpi.accent} border-t-2`}
+                  className="group relative overflow-hidden rounded-xl ag-float-card ag-glass p-5"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -668,7 +668,7 @@ export default function TrueServicePlumbingDemo() {
                         {kpi.value}
                       </p>
                     </div>
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${kpi.iconBg}`}>
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${kpi.iconBg}`}>
                       <Icon className={`h-5 w-5 ${kpi.iconColor}`} />
                     </div>
                   </div>
@@ -717,13 +717,13 @@ export default function TrueServicePlumbingDemo() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 ag-stagger-children">
             {MOCK_CONVERSATIONS.map((conv) => {
               const isExpanded = expandedConversation === conv.id;
               return (
                 <div
                   key={conv.id}
-                  className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow duration-150 hover:shadow-md"
+                  className="overflow-hidden rounded-xl ag-float-card ag-glass"
                 >
                   <button
                     onClick={() => setExpandedConversation(isExpanded ? null : conv.id)}
@@ -815,7 +815,7 @@ export default function TrueServicePlumbingDemo() {
         {/*  E. Featured Conversation Detail                                   */}
         {/* ----------------------------------------------------------------- */}
         <section className="mb-12">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div className="overflow-hidden rounded-xl ag-float-card ag-glass">
             <button
               onClick={() => setShowFeatured(!showFeatured)}
               className="flex w-full items-center justify-between px-5 py-4 text-left"
@@ -901,7 +901,7 @@ export default function TrueServicePlumbingDemo() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white p-5">
+          <div className="overflow-hidden rounded-xl ag-glass ag-float-card p-5">
             <div className="space-y-4">
               {PIPELINE_STAGES.map((stage) => (
                 <div key={stage.label} className="flex items-center gap-4">
@@ -955,17 +955,17 @@ export default function TrueServicePlumbingDemo() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 ag-stagger-children">
             {SERVICES.map((service) => {
               const Icon = service.icon;
               return (
                 <div
                   key={service.name}
-                  className="group overflow-hidden rounded-xl border border-slate-200 bg-white p-5 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+                  className="group overflow-hidden rounded-xl ag-float-card ag-glass p-5"
                 >
                   <div className="flex items-start gap-4">
                     <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${service.bg}`}
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 ${service.bg}`}
                     >
                       <Icon className={`h-5 w-5 ${service.iconColor}`} />
                     </div>
@@ -993,19 +993,19 @@ export default function TrueServicePlumbingDemo() {
 
           <div className="relative">
             {/* Connecting line — desktop */}
-            <div className="absolute left-0 right-0 top-[3.25rem] hidden h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent lg:block" />
+            <div className="absolute left-0 right-0 top-[3.25rem] hidden h-px bg-gradient-to-r from-transparent via-blue-300/30 to-transparent lg:block" />
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 ag-stagger-children">
               {HOW_IT_WORKS.map((step, i) => {
                 const Icon = step.icon;
                 return (
                   <div key={step.label} className="relative flex flex-col items-center text-center">
                     {/* Step number */}
-                    <div className="relative z-10 mb-3 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-transform duration-150 hover:scale-105">
+                    <div className="relative z-10 mb-3 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl ag-glass ag-float-card transition-transform duration-300 hover:scale-105">
                       <Icon className="h-7 w-7" style={{ color: PRIMARY }} />
                       <span
                         className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                        style={{ backgroundColor: PRIMARY }}
+                        style={{ backgroundColor: PRIMARY, boxShadow: '0 0 10px rgba(30, 64, 175, 0.2)' }}
                       >
                         {i + 1}
                       </span>
@@ -1028,7 +1028,7 @@ export default function TrueServicePlumbingDemo() {
       {/* ------------------------------------------------------------------- */}
       {/*  I. Footer                                                           */}
       {/* ------------------------------------------------------------------- */}
-      <footer className="border-t border-slate-200 bg-slate-50">
+      <footer className="border-t border-white/20 ag-glass-heavy">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
             <div>

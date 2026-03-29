@@ -180,7 +180,7 @@ export function FieldMappingEditor({ provider }: FieldMappingEditorProps) {
       </button>
 
       {expanded && (
-        <div className="mt-3 space-y-2.5">
+        <div className="mt-3 space-y-2.5 ag-expand">
           {mappings.map((mapping) => (
             <div
               key={mapping.flowmaxField}

@@ -117,15 +117,14 @@ function CrmCard({
   return (
     <div
       className={`
-        relative flex flex-col rounded-xl border bg-white p-5 shadow-sm
-        transition-all duration-200
-        ${available ? 'hover:-translate-y-px hover:shadow-md' : 'opacity-60'}
+        group relative flex flex-col rounded-xl p-5 ag-float-card ag-glass
+        ${available ? '' : 'opacity-60 grayscale-[0.3]'}
       `}
     >
       {/* Header: Icon + Name */}
       <div className="flex items-start gap-3">
         <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${colors.bg}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${colors.bg}`}
         >
           <Icon className={`h-5 w-5 ${colors.fg}`} />
         </div>
@@ -174,7 +173,7 @@ function CrmCard({
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" style={{ boxShadow: '0 0 10px rgba(34, 197, 94, 0.3)' }} />
                 </span>
                 <span className="text-xs font-medium text-green-700">
                   Connected
@@ -202,7 +201,7 @@ function CrmCard({
         ) : (
           /* Disconnected — Connect button */
           <Button
-            className="w-full bg-amber-500 text-white hover:bg-amber-600"
+            className="w-full bg-amber-500 text-white hover:bg-amber-600 transition-all duration-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:-translate-y-px"
             size="sm"
             onClick={() => onConnect(id)}
           >
@@ -257,7 +256,7 @@ export function IntegrationsPage() {
       </div>
 
       {/* Info Banner */}
-      <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+      <div className="flex items-start gap-3 rounded-lg border border-amber-200/60 bg-amber-50/60 backdrop-blur-sm px-4 py-3">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
         <p className="text-xs leading-relaxed text-amber-800">
           When your AI receptionist handles a call, data flows automatically to
@@ -266,7 +265,7 @@ export function IntegrationsPage() {
       </div>
 
       {/* CRM Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 ag-stagger-children">
         {CRM_PROVIDERS.map((provider) => (
           <CrmCard
             key={provider.id}

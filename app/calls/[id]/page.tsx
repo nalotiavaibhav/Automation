@@ -16,7 +16,7 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
 
   if (!call) {
     return (
-      <div className="max-w-4xl mx-auto py-20 text-center">
+      <div className="max-w-4xl mx-auto py-20 text-center ag-enter">
         <h1 className="text-2xl font-bold text-gray-900">Call Not Found</h1>
         <p className="text-gray-500 mt-2">
           The call with ID &quot;{id}&quot; does not exist.
@@ -30,9 +30,9 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 ag-enter">
         <Link href="/dashboard">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="transition-all duration-300 hover:shadow-md hover:-translate-x-0.5">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
@@ -43,9 +43,9 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
       </div>
 
       {/* Call metadata */}
-      <Card>
-        <CardContent className="pt-2">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <Card className="ag-glass ag-float-card rounded-xl">
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 ag-stagger-children">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
                 Caller
@@ -111,7 +111,7 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* Audio player */}
       {call.recordingUrl && (
-        <Card>
+        <Card className="ag-glass ag-float-card rounded-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Phone className="h-4 w-4" />
@@ -119,17 +119,19 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <audio controls className="w-full" preload="none">
-              <source src={call.recordingUrl} type="audio/wav" />
-              Your browser does not support the audio element.
-            </audio>
+            <div className="bg-gradient-to-r from-flowmax-navy/5 to-transparent rounded-xl p-3">
+              <audio controls className="w-full" preload="none">
+                <source src={call.recordingUrl} type="audio/wav" />
+                Your browser does not support the audio element.
+              </audio>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {/* Summary */}
       {call.summary && (
-        <Card>
+        <Card className="ag-glass ag-float-card rounded-xl ag-enter">
           <CardHeader>
             <CardTitle>Summary</CardTitle>
           </CardHeader>
@@ -143,12 +145,12 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* Transcript */}
       {call.transcript.length > 0 && (
-        <Card>
+        <Card className="ag-glass ag-float-card rounded-xl">
           <CardHeader>
             <CardTitle>Transcript</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4 ag-stagger-children">
               {call.transcript.map((msg, idx) => (
                 <div
                   key={idx}
@@ -157,10 +159,10 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
                   }`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
+                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 transition-transform duration-300 hover:scale-[1.01] ${
                       msg.role === 'ai'
-                        ? 'bg-blue-50 text-blue-900 rounded-bl-md'
-                        : 'bg-gray-100 text-gray-900 rounded-br-md'
+                        ? 'bg-blue-50/80 text-blue-900 rounded-bl-md backdrop-blur-sm border border-blue-100/50'
+                        : 'bg-gray-100/80 text-gray-900 rounded-br-md backdrop-blur-sm border border-gray-200/50'
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
@@ -181,7 +183,7 @@ export default function CallDetailPage({ params }: { params: Promise<{ id: strin
       )}
 
       {call.transcript.length === 0 && call.status === 'missed' && (
-        <Card>
+        <Card className="ag-glass ag-float-card rounded-xl ag-enter">
           <CardContent className="py-8 text-center">
             <PhoneMissed className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
