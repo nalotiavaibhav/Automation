@@ -1,0 +1,51 @@
+---
+title: Core Concepts
+description: How calls, contacts, deals, urgency, and the pipeline fit together.
+---
+
+Flowmax has five primary objects. Everything else in the dashboard is a view onto one of these.
+
+## Call
+
+A `Call` is the record of a single phone conversation between the AI and a caller. It carries:
+
+- **Phone, contactName** — caller identity (best-effort; the AI tries to capture a name)
+- **Duration, cost** — pulled from Vapi's end-of-call-report
+- **Transcript, recordingUrl** — full text + audio. Audio is hosted by Vapi.
+- **Summary** — the AI's one-paragraph recap
+- **Outcome** — `booked` · `info` · `missed` · `follow_up`
+- **Urgency** — `routine` · `urgent` · `emergency` ← this drives the SMS alert
+
+A call exists whether or not a CRM is connected. Every call shows in the dashboard.
+
+## Contact
+
+A `Contact` is a person Flowmax has spoken with. The first time a phone number dials in, a contact is created. Subsequent calls from the same number link to the same contact.
+
+If a CRM is connected, the contact is created/upserted in HubSpot/Zoho/etc. on every call. The `crmContactId` is stored so subsequent calls update the same record.
+
+## Deal
+
+When a call has enough information to be a sales opportunity — caller mentioned a service, address, and is open to scheduling — Flowmax creates a `Deal` in the connected CRM. Deal stages map to a generic 5-step pipeline:
+
+`new` → `contacted` → `qualified` → `booked` → `completed`
+
+Each integration translates these to its own native stage names. See the per-integration docs for the exact mapping.
+
+## Appointment
+
+If the caller commits to a date/time and Flowmax confirms it, an appointment is booked in the CRM. This is the highest-value outcome and the most CRM-specific behavior — see each integration page for limits.
+
+## Pipeline
+
+The pipeline view shows all open deals as a kanban board. Drag a card across stages and Flowmax mirrors the change back to the CRM. Closed-won and closed-lost cards drop off.
+
+## Urgency — the most important field
+
+`urgency` is set by the AI at the end of every call. It drives:
+
+- The red left-border on emergency rows in the call log
+- The owner-SMS alert (only fires on `urgency === 'emergency'`)
+- Sorting and filtering in the dashboard
+
+Misclassification is a real risk — the AI is a probabilistic classifier, not a rules engine. We surface every emergency call in a dedicated dashboard filter so you can review false positives weekly. See [Emergency SMS Alerts](/docs/guides/emergency-alerts) for tuning the prompt to be more or less aggressive.

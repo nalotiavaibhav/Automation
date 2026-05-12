@@ -1,0 +1,96 @@
+---
+title: Quickstart
+description: Get Flowmax answering calls in about 10 minutes.
+---
+
+This walks you from zero to a working AI receptionist that picks up calls, books appointments, and syncs to your CRM.
+
+## Before you start
+
+You'll need:
+
+- A Vapi account (https://vapi.ai) — free trial is enough to test
+- The business details you want Flowmax to answer with (name, address, hours, services)
+- Admin access to your CRM if you want sync (optional for the very first test call)
+- A US mobile number to receive emergency SMS alerts (optional but recommended)
+
+## 1. Spin up Flowmax
+
+```bash
+git clone https://github.com/nalotiavaibhav/Automation.git
+cd Automation/ai-receptionist
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. You'll land on the dashboard.
+
+## 2. Configure your business
+
+Open **Settings** in the sidebar. Set:
+
+- **Company name** — used in the AI's introduction ("Thanks for calling Flowmax Plumbing")
+- **Phone** — for the AI to read back when confirming
+- **Address** — the AI quotes this when callers ask "where are you located"
+- **Industry, greeting, voice, language** — tune to taste
+
+> The current settings UI does not yet persist these across server restarts. That's a separate multi-tenant project. For now, treat these as runtime config or set the equivalent variables in `.env.local`.
+
+## 3. Wire your Vapi assistant
+
+In your Vapi dashboard, create or open the assistant that will answer your phone number.
+
+**Crucial:** the assistant's prompt must mark `urgency` in its end-of-call structured output. Use these heuristics in the prompt:
+
+- "Burst pipe", "water spraying", "gas smell", "no heat in winter", "smoke", "flooding" → `emergency`
+- "Need it fixed today", "before guests arrive" → `urgent`
+- Everything else → `routine`
+
+Point Vapi's webhook at:
+
+```
+https://<your-app-url>/api/webhooks/vapi
+```
+
+(`http://localhost:3000/api/webhooks/vapi` while you're developing — use a tunnel like `ngrok` for Vapi to reach it.)
+
+## 4. Connect a CRM (optional but recommended)
+
+Pick one:
+
+- [HubSpot](/docs/integrations/hubspot) — OAuth, ~3 minutes
+- [Zoho](/docs/integrations/zoho) — OAuth, ~5 minutes (more clicks)
+- [ServiceTitan](/docs/integrations/servicetitan) — API keys + tenant ID
+- [Housecall Pro](/docs/integrations/housecall-pro) — Beta
+
+You can skip this and the call still works — it just won't auto-create the contact/deal in your CRM.
+
+## 5. Enable emergency SMS alerts
+
+Open `.env.local` and set:
+
+```
+TWILIO_ACCOUNT_SID=...
+TWILIO_AUTH_TOKEN=...
+TWILIO_FROM_PHONE=+1...
+OWNER_ALERT_PHONE=+1...     # YOUR phone, where alerts go
+```
+
+For dev, use Twilio's test credentials and the magic number `+15005550006` as `TWILIO_FROM_PHONE`.
+
+For production US SMS, **register A2P 10DLC first** — see the [Emergency SMS guide](/docs/guides/emergency-alerts) and the project README.
+
+## 6. Place a real call
+
+Dial your Vapi phone number. Say something specific enough that the AI can route it (e.g. "I have a burst pipe in my kitchen, I need someone today"). Hang up.
+
+Within 10 seconds:
+
+- The call appears in `/dashboard` with the transcript and recording
+- An emergency? Your `OWNER_ALERT_PHONE` gets an SMS
+- A CRM is connected? The contact, deal, and call log appear in HubSpot/Zoho
+
+## Done
+
+Open `/docs/concepts` to get a sharper mental model of calls, contacts, pipeline, and urgency in Flowmax.

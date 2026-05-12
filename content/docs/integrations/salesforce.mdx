@@ -1,0 +1,25 @@
+---
+title: Salesforce
+description: Coming soon — Salesforce Sales Cloud integration is on the roadmap.
+---
+
+> **Coming soon.** A Salesforce adapter is on the roadmap but not yet shipping. We're prioritizing it once we hear it from two paying customers.
+
+## Why not now
+
+Salesforce's integration surface is large (Sales Cloud · Service Cloud · custom objects · Apex triggers). Doing it well is a 3–4 week project on its own, and most of our early SMB customers are on HubSpot or Zoho.
+
+## What it will look like
+
+When it ships, expect:
+
+- OAuth 2.0 Connected App
+- Lead upsert (or Contact, configurable)
+- Opportunity creation with stage mapping
+- Task / Event activities
+
+## Workarounds in the meantime
+
+- Use Zapier or Make to forward HubSpot events into Salesforce
+- Build a custom integration on top of the `lib/crm/adapters/base.ts` interface — this is the same shape used by every other adapter
+- Vote for Salesforce in [our roadmap](/docs/resources/changelog) (file an issue)

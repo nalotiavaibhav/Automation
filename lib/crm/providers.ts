@@ -30,7 +30,7 @@ export const CRM_PROVIDERS: CrmProviderConfig[] = [
     name: 'Zoho CRM',
     description: 'Cost-effective CRM with strong automation.',
     authType: 'oauth2_code',
-    available: false,
+    available: true,
     features: ['Contacts', 'Deals', 'Activities', 'Events'],
   },
   {

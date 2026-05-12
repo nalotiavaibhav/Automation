@@ -18,6 +18,8 @@ export interface TranscriptMessage {
   timestamp: string;
 }
 
+export type CallOutcome = 'booked' | 'info' | 'missed' | 'follow_up';
+
 export interface Call {
   id: string;
   contactName: string;
@@ -33,6 +35,9 @@ export interface Call {
   success?: boolean;
   createdAt: string;
   endedAt?: string;
+  outcome: CallOutcome;
+  urgency: 'routine' | 'urgent' | 'emergency';
+  serviceType?: string;
 }
 
 export interface DashboardStats {

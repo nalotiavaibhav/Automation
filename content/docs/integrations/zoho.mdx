@@ -1,0 +1,65 @@
+---
+title: Zoho CRM
+description: Connect Flowmax to Zoho CRM with full OAuth, contact upsert, deal creation, and event-style appointments.
+---
+
+Zoho's adapter ships with a full OAuth 2.0 dance, refresh-token rotation, and webhook receiver. Setup is ~5 minutes and works against US, EU, IN, AU, and CN data centers.
+
+## What it does
+
+- **Contact upsert** — Zoho Contacts module
+- **Deal creation** — Zoho Deals module with mapped stages
+- **Activity log** — every call recorded as a Zoho Activity
+- **Appointment** — Zoho Event when the AI books a time
+- **Webhook** — Zoho can push CRM changes back to Flowmax via `/api/webhooks/zoho` (token-gated)
+
+## OAuth setup
+
+1. Go to https://api-console.zoho.com (use the right region: `.com`, `.eu`, `.in`, `.com.au`, `.com.cn`).
+2. Create a **Self Client** or **Server-based Application**.
+3. Set the redirect URI to `https://<your-app-url>/api/integrations/zoho/callback`.
+4. Required scopes:
+   - `ZohoCRM.modules.contacts.ALL`
+   - `ZohoCRM.modules.deals.ALL`
+   - `ZohoCRM.modules.activities.ALL`
+   - `ZohoCRM.modules.events.ALL`
+   - `ZohoCRM.settings.ALL`
+5. Copy the Client ID + Secret into `.env.local`:
+   ```
+   ZOHO_CLIENT_ID=...
+   ZOHO_CLIENT_SECRET=...
+   ZOHO_WEBHOOK_TOKEN=<random 32-char string>
+   DEFAULT_CRM_PROVIDER=zoho
+   ```
+6. In the app, click **Settings → Integrations → Connect Zoho** and go through the OAuth consent screen.
+7. Test by placing a Vapi call. The contact should appear in Zoho within ~10 seconds.
+
+## Deal stage mapping
+
+Zoho's default deal stages map cleanly:
+
+| Flowmax stage | Zoho stage |
+|---|---|
+| `new` | Qualification |
+| `contacted` | Needs Analysis |
+| `qualified` | Value Proposition |
+| `booked` | Proposal/Price Quote |
+| `completed` | Closed Won |
+
+Custom stages: edit `ZOHO_STAGE_MAP` in `lib/crm/adapters/zoho.ts`.
+
+## Troubleshooting
+
+**"INVALID_TOKEN" from Zoho API** — your refresh token expired. Disconnect (Settings → Integrations) and reconnect. The token store at `lib/crm/token-store.ts` auto-refreshes during normal operation but cannot recover an expired refresh token.
+
+**Webhook returns 401** — the `ZOHO_WEBHOOK_TOKEN` env var doesn't match what Zoho is sending. Open the Zoho webhook config and re-paste the token.
+
+**Data center mismatch** — Zoho APIs are region-locked. If your account is on `.in` you cannot use `.com` endpoints. Flowmax detects this on the first API call and surfaces a clear error in the logs.
+
+## FAQ
+
+**Sandbox support?** Yes — Zoho's developer sandbox works with the same OAuth client; just use the sandbox redirect URI.
+
+**Can I sync historical calls?** Not in v1. Only calls placed after you connect Zoho are synced.
+
+**Does it support custom modules?** No — the adapter is hardcoded to Contacts / Deals / Activities / Events. Custom modules are a feature request.

@@ -1,0 +1,36 @@
+---
+title: Housecall Pro
+description: Housecall Pro integration (Beta) — customer sync + estimate creation for MAX-plan accounts.
+---
+
+> **Beta.** The Housecall Pro adapter is functional for customer upsert but is being hardened around estimate/job creation. File a GitHub issue if you hit edge cases.
+
+## What it does (today)
+
+- **Customer upsert** to Housecall Pro Customers
+- **Estimate draft** when a service request is captured (MAX plan accounts only)
+
+## What it doesn't do yet
+
+- Schedule sync (read-only access to availability is not yet wired)
+- Recurring jobs
+
+## Setup
+
+Housecall Pro uses OAuth 2.0 + API keys. Plan minimum: **MAX** (lower tiers do not expose the API).
+
+1. In Housecall Pro, navigate to **Settings → API & Integrations**.
+2. Create an integration and grant access to **Customers**, **Estimates**, **Jobs**.
+3. Configure environment variables (see `lib/crm/adapters/housecallpro.ts` for the current shape — wiring may evolve while Beta).
+
+## Troubleshooting
+
+**403 Forbidden** — your Housecall Pro account is not on MAX. Lower tiers cannot read or write via the API.
+
+**Customer phone format mismatch** — Housecall Pro insists on E.164 format with country code. Flowmax normalizes before upsert.
+
+## FAQ
+
+**ETA on stable?** Once the dual-write contract with Jobs is verified across our three pilot customers — likely 4–8 weeks from current writing.
+
+**Can I use it for production?** Cautiously yes for read-mostly use cases. For write-heavy automation, wait for stable.

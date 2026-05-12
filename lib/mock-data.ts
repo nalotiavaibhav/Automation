@@ -1,4 +1,4 @@
-import type { DashboardStats, Call, PipelineStage } from '@/types';
+import type { DashboardStats, PipelineStage } from '@/types';
 
 export const dashboardStats: DashboardStats = {
   totalCalls: 156,
@@ -11,7 +11,7 @@ export const dashboardStats: DashboardStats = {
   revenueTrend: 15.7,
 };
 
-export const recentCalls: Call[] = [
+export const recentCalls = [
   {
     id: 'call-001',
     contactName: 'Maria Gonzalez',

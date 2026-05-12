@@ -44,3 +44,24 @@ export function formatPhoneNumber(phone: string): string {
   }
   return phone;
 }
+
+export function formatRelativeDate(dateString: string): string {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+
+  const isToday = date.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const isYesterday = date.toDateString() === yesterday.toDateString();
+
+  if (isToday) {
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    return `${diffHours}h ago`;
+  }
+  if (isYesterday) return `Yesterday, ${formatTime(dateString)}`;
+  return `${formatDate(dateString)}, ${formatTime(dateString)}`;
+}

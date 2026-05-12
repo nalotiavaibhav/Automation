@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import {
-  ComposedChart,
-  Line,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -13,52 +12,40 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { callsChartData7Days, callsChartData30Days } from '@/lib/mock-data';
+import type { Call } from '@/types';
 
-type Range = '7d' | '30d';
+interface CallsChartProps {
+  calls: Call[];
+}
 
-export function CallsChart() {
-  const [range, setRange] = useState<Range>('7d');
+export function CallsChart({ calls }: CallsChartProps) {
+  const chartData = useMemo(() => {
+    const dayMap = new Map<string, { calls: number; booked: number }>();
 
-  const data = range === '7d' ? callsChartData7Days : callsChartData30Days;
+    for (const call of calls) {
+      const date = new Date(call.createdAt);
+      const key = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const existing = dayMap.get(key) || { calls: 0, booked: 0 };
+      existing.calls += 1;
+      if (call.outcome === 'booked') existing.booked += 1;
+      dayMap.set(key, existing);
+    }
+
+    return Array.from(dayMap.entries())
+      .map(([date, data]) => ({ date, ...data }))
+      .slice(-14); // last 14 days max
+  }, [calls]);
+
+  if (chartData.length < 2) return null;
 
   return (
     <Card className="ag-glass ag-float-card rounded-xl">
-      <CardHeader className="flex-row items-center justify-between">
+      <CardHeader>
         <CardTitle>Call Volume</CardTitle>
-        <div className="flex items-center gap-1 rounded-full ag-glass p-0.5">
-          <Button
-            variant={range === '7d' ? 'default' : 'ghost'}
-            size="xs"
-            className="rounded-full transition-all duration-300"
-            onClick={() => setRange('7d')}
-          >
-            7 Days
-          </Button>
-          <Button
-            variant={range === '30d' ? 'default' : 'ghost'}
-            size="xs"
-            className="rounded-full transition-all duration-300"
-            onClick={() => setRange('30d')}
-          >
-            30 Days
-          </Button>
-        </div>
       </CardHeader>
-      <CardContent className="ag-enter">
-        <ResponsiveContainer width="100%" height={300}>
-          <ComposedChart data={data}>
-            <defs>
-              <linearGradient id="callsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.12} />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="bookingsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.12} />
-                <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" />
             <XAxis
               dataKey="date"
@@ -70,7 +57,8 @@ export function CallsChart() {
               tick={{ fontSize: 12 }}
               tickLine={false}
               axisLine={false}
-              width={35}
+              width={30}
+              allowDecimals={false}
             />
             <Tooltip
               contentStyle={{
@@ -87,37 +75,9 @@ export function CallsChart() {
               iconSize={8}
               wrapperStyle={{ fontSize: '13px', paddingTop: '8px' }}
             />
-            <Area
-              type="monotone"
-              dataKey="calls"
-              fill="url(#callsAreaGrad)"
-              stroke="transparent"
-            />
-            <Area
-              type="monotone"
-              dataKey="bookings"
-              fill="url(#bookingsAreaGrad)"
-              stroke="transparent"
-            />
-            <Line
-              type="monotone"
-              dataKey="calls"
-              name="Calls"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={{ r: 3, fill: '#3b82f6' }}
-              activeDot={{ r: 5 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="bookings"
-              name="Bookings"
-              stroke="#10b981"
-              strokeWidth={2}
-              dot={{ r: 3, fill: '#10b981' }}
-              activeDot={{ r: 5 }}
-            />
-          </ComposedChart>
+            <Bar dataKey="calls" name="Calls" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="booked" name="Booked" fill="#10b981" radius={[4, 4, 0, 0]} />
+          </BarChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>

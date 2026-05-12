@@ -1,0 +1,53 @@
+---
+title: ServiceTitan
+description: Flowmax → ServiceTitan integration. Job creation, customer sync, and tenant-scoped API access.
+---
+
+ServiceTitan is the go-to ops platform for HVAC, plumbing, and electrical service companies. The adapter is tenant-scoped and supports both the Integration and Production environments.
+
+## What it does
+
+- **Customer upsert** — into ServiceTitan Customers
+- **Job creation** — every booking-eligible call creates a draft Job
+- **Note attachment** — the call summary + transcript are attached as a Customer Note
+- **Tenant scope** — all calls are made against your single ServiceTitan tenant
+
+ServiceTitan does NOT support external call-creation via its public API, so the call recording itself stays in Vapi/Flowmax and only the call metadata + transcript flow to ServiceTitan.
+
+## Setup
+
+ServiceTitan integration uses API keys + tenant ID, not OAuth.
+
+1. In ServiceTitan, go to **Settings → Integrations → API Application Access**.
+2. Create an application; copy the Client ID, Client Secret, App Key.
+3. Note your Tenant ID (numeric).
+4. In `.env.local`:
+   ```
+   SERVICETITAN_CLIENT_ID=...
+   SERVICETITAN_CLIENT_SECRET=...
+   SERVICETITAN_APP_KEY=...
+   SERVICETITAN_TENANT_ID=...
+   SERVICETITAN_ENV=integration   # or "production"
+   DEFAULT_CRM_PROVIDER=servicetitan
+   ```
+5. Restart `next dev` and place a test call.
+
+## ServiceTitan vs HubSpot/Zoho — key differences
+
+- **No "deal" concept.** ServiceTitan uses Jobs. Flowmax creates a Job in `draft` status for each captured service request.
+- **No native call activity object.** Call transcripts attach as Customer Notes.
+- **Stricter tenant scoping.** Every API call includes the tenant ID — you can't accidentally cross-tenant.
+
+## Troubleshooting
+
+**401 Unauthorized** — verify Client ID/Secret are correct and the app has access to your tenant in ServiceTitan's admin panel.
+
+**"Tenant not found"** — `SERVICETITAN_TENANT_ID` is numeric; make sure no quotes or whitespace.
+
+**Job draft not visible** — check the **Drafts** filter in ServiceTitan's Jobs view; new draft jobs hide from the default open-jobs view.
+
+## FAQ
+
+**Production vs Integration env?** Use `integration` for development against ServiceTitan's sandbox. Switch to `production` when ready to write real customer data.
+
+**Pricebook items?** Not yet wired. The Job is created without line items; you (or a dispatcher) fill them in.

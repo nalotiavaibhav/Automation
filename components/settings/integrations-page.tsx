@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CRM_PROVIDERS } from '@/lib/crm/providers';
 import { CrmConnectDialog } from './crm-connect-dialog';
+import { HubSpotConnectDialog } from './hubspot-connect-dialog';
 import { FieldMappingEditor } from './field-mapping-editor';
 import type { CrmProvider, CrmConnectionStatus } from '@/types/crm';
 
@@ -220,13 +221,16 @@ function CrmCard({
 export function IntegrationsPage() {
   const { statuses, loading, refresh } = useCrmStatuses();
   const [stDialogOpen, setStDialogOpen] = useState(false);
+  const [hsDialogOpen, setHsDialogOpen] = useState(false);
   const [disconnecting, setDisconnecting] = useState<CrmProvider | null>(null);
 
   function handleConnect(provider: CrmProvider) {
     if (provider === 'hubspot') {
-      window.location.href = '/api/integrations/hubspot/authorize';
+      setHsDialogOpen(true);
     } else if (provider === 'servicetitan') {
       setStDialogOpen(true);
+    } else if (provider === 'zoho') {
+      window.location.href = '/api/integrations/zoho/authorize';
     }
   }
 
@@ -286,6 +290,13 @@ export function IntegrationsPage() {
       <CrmConnectDialog
         open={stDialogOpen}
         onOpenChange={setStDialogOpen}
+        onConnected={refresh}
+      />
+
+      {/* HubSpot Private App Token Dialog */}
+      <HubSpotConnectDialog
+        open={hsDialogOpen}
+        onOpenChange={setHsDialogOpen}
         onConnected={refresh}
       />
     </div>

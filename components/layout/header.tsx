@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const pageTitles: Record<string, string> = {
@@ -30,8 +31,16 @@ export function Header() {
       {/* Left: Page title */}
       <h1 className="text-lg font-semibold text-gray-900 ag-enter">{title}</h1>
 
-      {/* Right: Search + Notification + Avatar */}
+      {/* Right: Docs + Search + Notification + Avatar */}
       <div className="flex items-center gap-4">
+        <Link
+          href="/docs"
+          className="hidden md:inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-flowmax-accent transition-colors duration-200"
+        >
+          <BookOpen className="h-3.5 w-3.5" />
+          Docs
+        </Link>
+
         {/* Search */}
         <div className="group relative hidden sm:block">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 transition-colors duration-300 group-focus-within:text-flowmax-accent" />

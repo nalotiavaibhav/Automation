@@ -1,0 +1,101 @@
+---
+title: Emergency SMS Alerts
+description: When the AI receptionist hears "burst pipe" or "gas smell", your phone buzzes within seconds. Here's how it works and how to set it up.
+---
+
+## What this does
+
+When Vapi classifies a call as `urgency === 'emergency'` in its end-of-call structured output, Flowmax immediately sends an SMS to your phone via Twilio with:
+
+- The caller's phone number
+- The AI's one-line summary of the situation
+- The local time the call ended
+- A deep link to the call detail page (transcript + recording)
+
+Example:
+
+```
+EMERGENCY CALL - Flowmax
+From: +1 555 123 4567
+Summary: Burst pipe, basement flooding, needs tech within 2hrs.
+4:32 PM 05/12
+Open: https://flowmax.app/calls/abc123
+```
+
+Two SMS segments. Plain text, no emoji, GSM-7. Costs about $0.027 per alert delivered.
+
+## Architecture
+
+1. Vapi ends the call → POSTs `end-of-call-report` to `/api/webhooks/vapi`
+2. `vapi-extractor.ts` parses the payload, extracts `urgency`
+3. `sync-orchestrator.ts` runs as fire-and-forget. **Step 0** (before any CRM work) checks `urgency === 'emergency'` and fires the SMS
+4. `sendEmergencySms()` in `lib/notifications/sms.ts` calls the Twilio API, logs the result, never throws
+5. The Owner Alert section in the call detail sheet queries `/api/alerts?callId=...` which scans recent Twilio messages for a body containing the call's deep link
+
+Critically: **the SMS fires BEFORE the CRM sync**. So even if HubSpot/Zoho is down, the emergency reaches you.
+
+## Setup
+
+### 1. Twilio credentials
+
+Create a Twilio account at https://twilio.com. Buy or use a test number. Note the Account SID + Auth Token.
+
+```
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_FROM_PHONE=+15551234567
+OWNER_ALERT_PHONE=+15559998888   # your phone
+OWNER_TIMEZONE=America/New_York
+NEXT_PUBLIC_APP_URL=https://flowmax.app
+```
+
+### 2. A2P 10DLC registration (US production only)
+
+US carriers (AT&T, T-Mobile, Verizon) throttle business SMS 30–70% if you're not registered with The Campaign Registry. Without registration, emergency alerts will land late or not at all.
+
+Steps:
+
+1. **Brand registration** — Twilio Console → Messaging → Regulatory Compliance → A2P 10DLC. Pick **Low Volume Standard** ($4.50 one-time, $4/mo). Fill in business legal name, EIN, address.
+2. **Campaign registration** — Use case: **Account Notifications**. Sample message: paste the template above. Include "Reply STOP to opt out" in your help docs. ($15 one-time vet, $1.50/mo)
+3. **Attach phone number** to the approved campaign.
+4. Wait 1–3 business days for vetting.
+
+International? Skip this section and consider WhatsApp Business instead (see below).
+
+### 3. Vapi prompt tuning
+
+The AI must reliably mark emergencies. In your Vapi assistant prompt, include explicit examples:
+
+> Mark `urgency = "emergency"` when the caller describes any of: active flooding, burst or gushing water, gas smell, fire, sparks, no heat in winter, no AC in extreme heat, smoke, sewage backup, danger to life or property.
+>
+> Mark `urgency = "urgent"` for: same-day requests, before-guests-arrive, business closures imminent.
+>
+> Everything else is `urgency = "routine"`.
+
+Test with a phone call simulating each scenario. Verify the urgency in the end-of-call-report payload.
+
+## Testing locally
+
+Twilio offers test credentials that don't actually send SMS but exercise the full API:
+
+- `TWILIO_ACCOUNT_SID=AC<test-sid>` (from Twilio Console → Keys & Credentials)
+- `TWILIO_FROM_PHONE=+15005550006` (magic-always-succeeds)
+- `OWNER_ALERT_PHONE=+15005550001` (will return InvalidNumber, useful for error-path testing)
+
+For end-to-end testing, swap to live credentials and your own cell, place a real Vapi call, and have the AI mark it emergency.
+
+## What's intentionally NOT here
+
+- **ACK loop** — no "reply YES to acknowledge". Fire-and-forget by design.
+- **Retry** — Twilio handles carrier-level retries; we don't layer our own.
+- **Escalation** — single recipient only. Multi-step escalation (owner → manager → on-call) is a future project.
+- **Quiet hours** — emergencies always send, regardless of time.
+- **Custom recipients per emergency type** — one phone, all emergencies.
+
+If you need any of these, file an issue.
+
+## WhatsApp instead of SMS
+
+For non-US markets where WhatsApp is the default messenger (India, Brazil, Mexico, parts of EU/Africa), WhatsApp Business via Twilio is 3–5× cheaper than US SMS and supports interactive buttons.
+
+WhatsApp setup is its own project — currently not wired in v1. If you're in a WhatsApp-heavy market, please tell us; it informs prioritization.

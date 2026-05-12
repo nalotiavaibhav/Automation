@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { extractVapiCallData } from '@/lib/crm/vapi-extractor';
 import { processCrmSync } from '@/lib/crm/sync-orchestrator';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   try {
     const payload = await request.json();

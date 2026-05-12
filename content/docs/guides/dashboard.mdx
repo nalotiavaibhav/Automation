@@ -1,0 +1,48 @@
+---
+title: Dashboard
+description: The Flowmax dashboard at a glance — KPIs, charts, and the call log.
+---
+
+The dashboard is the front door of Flowmax. It surfaces five things in roughly one screen:
+
+## 1. KPI Strip
+
+Four headline numbers across the top:
+
+- **Total calls** — count of all calls in the selected window
+- **Bookings made** — calls that ended with `outcome === 'booked'`
+- **Missed calls recovered** — calls Flowmax answered when no human was available (often the bulk of value)
+- **Revenue impact** — a rough estimate based on bookings × average ticket size
+
+Each card shows a 7-day trend arrow (% change vs prior period).
+
+## 2. Calls Chart
+
+A 14-day chart of call volume by day, segmented by outcome. Hover any bar for the per-day breakdown.
+
+## 3. Filtering Toolbar
+
+Above the call log:
+
+- **Date range** — last 24h / 7d / 30d / 90d / all
+- **Outcome filter** — booked / info / missed / follow-up
+- **Urgency filter** — emergency / urgent / routine
+- **Search** — free-text against caller name, phone, summary
+
+Filters compose. They do not persist across page reloads in v1.
+
+## 4. Call Log Table
+
+Excel-like sortable table. Click any header to sort; click a row to open the detail sheet.
+
+Emergency rows are highlighted with a red left-border so they're impossible to miss when scanning.
+
+## 5. Call Detail Sheet
+
+Slides in from the right when you click a row. Shows phone, duration, cost, outcome, urgency, recording, summary, full transcript, and (for emergencies) the **Owner Alert** status — did the SMS land?
+
+## What the dashboard does NOT show
+
+- Per-customer billing or usage metering (multi-tenancy isn't built yet)
+- Real-time live transcripts during a call (post-call only)
+- Charts segmented by AI assistant — only one assistant per business in v1

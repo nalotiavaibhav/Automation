@@ -1,0 +1,44 @@
+---
+title: Contacts & Pipeline
+description: How Flowmax organizes callers into contacts and tracks deals through stages.
+---
+
+## Contacts
+
+The contacts page is a list of every person Flowmax has spoken with. Each row shows:
+
+- Name (best-effort from the call)
+- Phone
+- Email (if captured)
+- Service of interest
+- Status (`new` / `contacted` / `qualified` / `booked` / `completed`)
+- Urgency
+- Source (`inbound_call` / `missed_call` / `website` / `referral`)
+- Last contacted (relative time)
+
+Click a row to see the contact detail with their full call history, every transcript, and the linked CRM record.
+
+## Pipeline (kanban)
+
+Open `/pipeline`. You'll see a kanban board with columns:
+
+1. **New** — fresh inbound that needs a human touch
+2. **Contacted** — first follow-up done
+3. **Qualified** — confirmed they want the service
+4. **Booked** — appointment scheduled
+5. **Completed** — service done, ready to close
+
+Drag a card across stages. The change syncs to your connected CRM within ~5 seconds.
+
+## How contacts get there
+
+Every call upserts the caller's phone into the contacts table. The first call from a new phone creates a contact at `status: 'new'`; subsequent calls update the same record.
+
+If a CRM is connected, the contact is mirrored there with the right stage mapping (see your integration's doc for the exact mapping).
+
+## What's not here yet
+
+- **Bulk actions** — can't multi-select and bulk-move cards
+- **Custom stages** — the 5 stages are hardcoded
+- **Per-rep assignment** — every contact is "yours" because the app is single-business in v1
+- **Lead source attribution** — `source` is captured but no analytics view exists yet

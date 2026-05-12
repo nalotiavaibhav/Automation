@@ -1,0 +1,63 @@
+---
+title: Call Log & Transcripts
+description: How to read, filter, and act on Flowmax's call log.
+---
+
+The call log is the most-used surface in Flowmax. Every call ever handled appears here.
+
+## Columns
+
+Visible by default:
+
+- **Time** — relative ("3 min ago") and absolute on hover
+- **Caller** — name (if captured) + phone
+- **Duration** — formatted MM:SS
+- **Outcome** — booked / info / missed / follow-up
+- **Urgency** — emergency / urgent / routine, color-coded
+- **Service** — extracted service type if the AI identified one
+- **Cost** — Vapi's reported per-call cost
+
+Hidden by default (toggle in the toolbar):
+
+- **Recording** — link icon to play in-place
+- **CRM** — linked icon to jump to HubSpot/Zoho
+
+## Sorting
+
+Click any header. Hold Shift and click another header to add a secondary sort key. Sort state is per-session.
+
+## Filtering
+
+Filters live in the toolbar above the table:
+
+- **Date range** — 24h / 7d / 30d / 90d / all
+- **Outcome** — multi-select
+- **Urgency** — multi-select
+- **Has recording** — boolean
+- **CRM-synced** — boolean (useful for finding calls that failed to sync)
+
+## Clicking a row
+
+Opens the detail sheet on the right with:
+
+- Header: caller name + relative date
+- Metadata grid: phone (with copy button), duration, cost
+- Outcome + urgency badges
+- **Owner Alert section** — only for emergency calls. Shows SMS delivery status.
+- Recording (audio player)
+- AI summary
+- Full transcript, AI vs Customer bubbles
+
+## Exporting
+
+Click **Export CSV** in the toolbar. The current filter is applied to the export — only what you see is included.
+
+CSV columns: `id, time, caller, phone, duration, outcome, urgency, summary`. The transcript is not included; it's too long for a useful row.
+
+## Common workflows
+
+**Morning triage**: filter "last 24h" + "missed" → review every missed call, decide which to follow up on.
+
+**Emergency post-mortem**: filter "urgency = emergency" → review the AI's classification accuracy. Adjust the Vapi prompt if you see false positives.
+
+**Sales review**: filter "outcome = booked" → audit which bookings the AI captured well vs which ones a human had to clean up.

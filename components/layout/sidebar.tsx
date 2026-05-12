@@ -2,20 +2,23 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion } from 'motion/react';
 import {
   LayoutDashboard,
-  Kanban,
   Users,
-  Phone,
   Settings,
+  Play,
+  Rocket,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/contacts', label: 'Contacts', icon: Users },
-  { href: '/calls', label: 'Call Logs', icon: Phone },
+  { href: '/demo/true-service-plumbing', label: 'Live Demo', icon: Play },
+  { href: '/onboarding', label: 'Onboarding', icon: Rocket },
+  { href: '/docs', label: 'Docs', icon: BookOpen },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -66,26 +69,29 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300',
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
                 isActive
-                  ? 'bg-white/10 text-white backdrop-blur-sm'
-                  : 'text-white/60 hover:translate-x-1 hover:bg-white/[0.06] hover:text-white'
+                  ? 'text-white'
+                  : 'text-white/60 hover:bg-white/[0.06] hover:text-white'
               )}
-              style={
-                isActive
-                  ? {
-                      boxShadow:
-                        '0 0 15px rgba(245, 158, 11, 0.12), inset 0 0 15px rgba(245, 158, 11, 0.04)',
-                    }
-                  : undefined
-              }
             >
+              {isActive && (
+                <motion.span
+                  layoutId="sidebar-active-pill"
+                  className="absolute inset-0 rounded-lg bg-white/10 backdrop-blur-sm"
+                  style={{
+                    boxShadow:
+                      '0 0 15px rgba(245, 158, 11, 0.12), inset 0 0 15px rgba(245, 158, 11, 0.04)',
+                  }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                />
+              )}
               <Icon
                 className={cn(
-                  'h-5 w-5 shrink-0 transition-all duration-300',
+                  'relative h-5 w-5 shrink-0 transition-colors duration-200',
                   isActive
                     ? 'text-flowmax-accent'
-                    : 'text-white/40 group-hover:scale-110 group-hover:text-white/80'
+                    : 'text-white/40 group-hover:text-white/80'
                 )}
                 style={
                   isActive
@@ -96,7 +102,7 @@ export function Sidebar() {
                     : undefined
                 }
               />
-              {item.label}
+              <span className="relative">{item.label}</span>
             </Link>
           );
         })}

@@ -1,0 +1,66 @@
+---
+title: Security & Data
+description: How Flowmax handles your data, your callers' data, and integrations.
+---
+
+## What we store
+
+- **Call records** — phone, duration, cost, transcript, summary, urgency, outcome
+- **Audio recordings** — hosted at Vapi; Flowmax stores only the URL
+- **Contacts** — phone, name (if captured), service, status
+- **CRM tokens** — OAuth tokens for connected CRMs, encrypted at rest in the database
+
+## What we don't store
+
+- Credit card numbers (handled by Stripe; we get only a customer ID)
+- Caller voiceprints
+- Marketing-style profiles inferred from calls
+
+## Where it lives
+
+- **Database** — Supabase Postgres, hosted in us-east-1 (or your region; configurable on Enterprise)
+- **Audio** — Vapi-hosted (their security posture documented at vapi.ai/legal)
+- **Application** — Vercel edge + node runtimes
+
+## Retention
+
+| Data | Default | Configurable to |
+|---|---|---|
+| Call records | 90 days (Starter) / 365 days (Pro) / Custom (Enterprise) | Up to 7 years |
+| Audio recordings | 90 days | Up to 1 year |
+| Contacts | Indefinite | Hard-delete on request |
+| CRM tokens | Until you disconnect | Same |
+
+## OAuth scopes (CRM integrations)
+
+Each CRM adapter requests the minimum scopes needed:
+
+- **HubSpot** — contacts, deals, calls, meetings (read+write each)
+- **Zoho** — modules.contacts, modules.deals, modules.activities, modules.events, settings (all)
+- **ServiceTitan** — tenant-scoped, requires API app access
+- **Housecall Pro** — customers, estimates, jobs (MAX plan only)
+
+We do not request scopes beyond what's needed for the current feature set.
+
+## How we secure tokens
+
+- OAuth refresh tokens are encrypted at rest with AES-256
+- Tokens are scoped to your `business_id` (single-tenant in v1 — multi-tenant project pending)
+- Token rotation happens automatically when the access token expires
+
+## What you control
+
+- **Disconnect a CRM** at any time. We stop syncing immediately; the CRM keeps the data it already has.
+- **Delete a contact** removes them from Flowmax. CRM-side records are not auto-deleted (we treat CRMs as the source of truth).
+- **Export your data** via the dashboard's CSV export or by request to support.
+
+## Compliance
+
+- **GDPR** — supported. Right to access, rectify, delete, and export. Email support to exercise rights.
+- **HIPAA** — Enterprise plan only. Requires a signed BAA. We use Supabase Team plan + Vapi BAA for the data path.
+- **SOC 2 Type II** — in progress (target: Q4 2026).
+- **CCPA** — supported. Same self-serve rights as GDPR.
+
+## Reporting a vulnerability
+
+Email security@flowmax.app with a description and proof-of-concept. We acknowledge within 1 business day and patch high-severity issues within 5 business days. No bug bounty program yet — we're a small team, but we will credit researchers in this doc.

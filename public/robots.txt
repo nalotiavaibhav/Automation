@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /docs/
+Allow: /docs
+Disallow: /dashboard
+Disallow: /contacts
+Disallow: /pipeline
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /calls/
+Disallow: /api/
+
+Sitemap: https://flowmax.app/sitemap.xml

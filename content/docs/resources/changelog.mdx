@@ -1,0 +1,29 @@
+---
+title: Changelog
+description: What's new in Flowmax.
+---
+
+Hand-curated. Newest first.
+
+## 2026-05-12 — Emergency SMS Alerts + Docs Site + Framer Motion polish
+
+- **NEW:** Emergency SMS alerts. When Vapi marks a call `urgency === 'emergency'`, your phone gets an SMS within seconds. See [Emergency SMS Alerts](/docs/guides/emergency-alerts).
+- **NEW:** Product documentation site you're reading right now, built with Fumadocs.
+- **POLISH:** Framer Motion across the dashboard — KPI count-up, call-detail-sheet spring slide, sidebar active-route shared layout animation, docs page transitions. Respects `prefers-reduced-motion`.
+- **DOCS:** Added `pricing/sms-twilio-pricing.md` and `pricing/full-pricing-analysis.md` internal analysis. Pricing FAQ on this site is the public-facing version.
+
+## 2026-04-01 — Dashboard rewrite + real Vapi integration
+
+- Dashboard now consumes real Vapi data (no more mock).
+- New: KPI strip, Excel-like call log table, slide-out call detail sheet.
+- New: Zoho CRM integration (full OAuth + webhooks).
+- New: HubSpot connect dialog.
+- New: CSV export from the call log.
+
+## 2026-03-30 — Antigravity design system
+
+- 21 components upgraded to the new Antigravity design system (glassmorphism, mesh gradients, stagger animations).
+
+## 2026-03-28 — Initial public commit
+
+- Rebuilt as Flowmax AI Receptionist with CRM connectivity (HubSpot, ServiceTitan).

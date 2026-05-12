@@ -48,6 +48,19 @@ export async function processCrmSync(
 ): Promise<void> {
   ensureAdaptersRegistered();
 
+  // 0. Emergency alert — must fire before CRM work so it lands even if CRM is unconfigured/down
+  if (callData.urgency === 'emergency') {
+    const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+    await sendBusinessNotification(businessId, {
+      type: 'emergency_call',
+      callId: callData.callId,
+      customerPhone: callData.customerPhone,
+      summary: callData.summary,
+      endedAt: callData.endedAt,
+      deepLink: `${base}/calls/${callData.callId}`,
+    });
+  }
+
   // 1. Get CRM config
   const config = getBusinessCrmConfig(businessId);
   if (!config) {

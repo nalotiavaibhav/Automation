@@ -1,0 +1,14 @@
+{
+  "title": "Flowmax Docs",
+  "pages": [
+    "index",
+    "quickstart",
+    "concepts",
+    "---Product Guides---",
+    "guides",
+    "---Integrations---",
+    "integrations",
+    "---Resources---",
+    "resources"
+  ]
+}

@@ -31,9 +31,24 @@ export async function GET() {
       });
     }
 
+    // Try to get real account name
+    let accountName = tokens.refreshToken ? 'HubSpot (OAuth)' : 'HubSpot (Private App)';
+    try {
+      const infoRes = await fetch(
+        `https://api.hubapi.com/oauth/v1/access-tokens/${tokens.accessToken}`,
+      );
+      if (infoRes.ok) {
+        const info = (await infoRes.json()) as { hub_domain?: string; hub_id?: number };
+        if (info.hub_domain) accountName = info.hub_domain;
+        else if (info.hub_id) accountName = `HubSpot (${info.hub_id})`;
+      }
+    } catch {
+      // Non-critical
+    }
+
     return NextResponse.json({
       connected: true,
-      accountName: 'HubSpot',
+      accountName,
       lastSyncAt: new Date().toISOString(),
     });
   } catch (error) {

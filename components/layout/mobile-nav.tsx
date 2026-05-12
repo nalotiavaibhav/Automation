@@ -4,18 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  Kanban,
   Users,
-  Phone,
   Settings,
+  Play,
+  Rocket,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/contacts', label: 'Contacts', icon: Users },
-  { href: '/calls', label: 'Calls', icon: Phone },
+  { href: '/demo/true-service-plumbing', label: 'Demo', icon: Play },
+  { href: '/onboarding', label: 'Setup', icon: Rocket },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

@@ -1,0 +1,38 @@
+---
+title: Settings
+description: All the knobs Flowmax exposes for your business.
+---
+
+The settings page is your single configuration surface. Today it covers:
+
+## Business profile
+
+- **Company name** — used in the AI's greeting and email/SMS signatures
+- **Phone** — the AI repeats this back when callers ask "what's your number"
+- **Address** — used when callers ask "where are you located"
+- **Industry** — informs the AI's domain language ("clogged drain" makes sense for plumbing, less so for an HVAC company)
+
+## AI configuration
+
+- **Greeting** — the exact opening line the AI says
+- **Voice** — pick from the available Vapi voices (ElevenLabs Turbo and Cartesia options available)
+- **Language** — primary language for the conversation
+
+## Integrations
+
+- Connect / disconnect HubSpot, Zoho, ServiceTitan, Housecall Pro, Jobber
+- Set the **default CRM** that calls sync to (you can have multiple connected; one acts as primary)
+
+## Emergency alerts
+
+- View the configured `OWNER_ALERT_PHONE` (read-only, env-var driven in v1)
+- View the configured `TWILIO_FROM_PHONE`
+- See the A2P 10DLC registration status (manual check today; automated soon)
+
+## What the settings page does NOT yet do
+
+- **Persist across server restarts.** In v1 the settings UI holds state in React only; settings reset on restart unless equivalent env vars are set.
+- **Per-user preferences.** Single-business design — no users, no per-user setting.
+- **Per-call routing rules.** "Send Tuesday calls to assistant A, Saturday calls to assistant B" — not built. Single assistant only.
+
+These are part of the multi-tenancy project.

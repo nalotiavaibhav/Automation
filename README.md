@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flowmax AI Receptionist
+
+24/7 AI receptionist that answers business calls, captures structured data, syncs to your CRM, and texts the owner the moment an emergency comes in.
+
+Built on Next.js 16 (App Router) + React 19 + Tailwind 4 + Vapi voice AI.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+cp .env.example .env.local   # fill in real values
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Real-time call dashboard** — Excel-like sortable/filterable call log with emergency highlighting
+- **Slide-out call detail** — transcript, audio playback, urgency, outcome
+- **CRM sync** — HubSpot, Zoho, ServiceTitan, Housecall Pro adapters; one call → contact + deal + appointment + log
+- **Urgent SMS alerts** — when Vapi marks a call `urgency='emergency'`, the owner gets an SMS within seconds
+- **Product docs** at `/docs` — integration guides, quickstart, security, pricing FAQ
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+See `.env.example`. The non-obvious ones:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `DEFAULT_BUSINESS_ID` — single-tenant placeholder. Real multi-tenancy is a separate future project.
+- `NEXT_PUBLIC_APP_URL` — base URL used to build the deep link inside the emergency SMS.
+- `OWNER_TIMEZONE` — IANA tz name used to format the SMS timestamp (default `America/New_York`).
+- `OWNER_ALERT_PHONE` — single owner phone for v1. Multi-recipient escalation is out of scope.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Pre-launch Checklist
 
-## Deploy on Vercel
+### A2P 10DLC Registration (REQUIRED before production SMS)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+US carriers throttle unregistered business SMS by 30-70%. Without this step, emergency alerts will arrive late or not at all.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Brand registration** — Twilio Console → Messaging → Regulatory Compliance → A2P 10DLC. Choose **Low Volume Standard** unless you'll exceed ~3,000 msgs/day. Fees: $4.50 one-time + $4/mo. Approval: 1-3 business days.
+2. **Campaign registration** — Use case: **Account Notifications** (operational, not marketing). Sample message: paste the template from `lib/notifications/sms.ts::buildBody`. Include "Reply STOP to unsubscribe" in the help docs. Fees: $15 one-time + $1.50/mo.
+3. **Attach `TWILIO_FROM_PHONE`** to the approved campaign. Until then, use Twilio test credentials.
+
+### Twilio test credentials (for local dev)
+
+Set `TWILIO_ACCOUNT_SID` to your Test SID + `TWILIO_AUTH_TOKEN` to the Test Auth Token (Twilio Console → Account → Keys & Credentials).
+
+Magic test numbers:
+- `+15005550006` (FROM) — always succeeds
+- `+15005550001` (TO) — returns invalid-number error
+- No real SMS is sent and no charges incurred.
+
+### Vapi assistant configuration
+
+The webhook at `/api/webhooks/vapi` only acts on `end-of-call-report` events. For the emergency alert to fire, the Vapi assistant must classify `urgency='emergency'` in its end-of-call structured output. Examples to put in the prompt:
+
+- "Burst pipe", "water spraying", "gas smell", "no heat in winter" → emergency
+- "Need an appointment", "want a quote", "schedule a service" → routine
+
+## Pricing analysis
+
+See `pricing/sms-twilio-pricing.md` and `pricing/full-pricing-analysis.md`. **The `pricing/` directory is internal — do not publish to docs.**
+
+## Architecture notes
+
+- **Vapi webhook → sync-orchestrator**: emergency SMS fires as **Step 0** (`lib/crm/sync-orchestrator.ts`), before any CRM call. So an outage in HubSpot/Zoho cannot drop an emergency alert.
+- **Persistence of alert events**: Twilio is the source of truth. The dashboard queries `/api/alerts?callId=...` which calls `messages.list` against Twilio with a `body LIKE '%/calls/<id>%'` heuristic. No DB table for alerts in v1.
+- **Tenancy**: single-business v1. `DEFAULT_BUSINESS_ID = 'default'` is hardcoded. Multi-tenant + Stripe billing is a separate project.
+- **Docs**: built with Fumadocs (in-repo MDX). Public, no auth. Routes under `/docs/*`.
+- **Animations**: Framer Motion (`motion` package) wrapped in `<MotionConfig reducedMotion="user">` at AppShell root. Honors `prefers-reduced-motion`.
+
+## Deployment
+
+Vercel, single project. The Vapi webhook needs `runtime = 'nodejs'` (already set) — the Twilio SDK is not edge-compatible.

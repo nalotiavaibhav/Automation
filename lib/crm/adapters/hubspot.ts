@@ -24,6 +24,19 @@ const HUBSPOT_SCOPES = [
   'crm.objects.meetings.write',
 ];
 
+// Map generic stage names to valid HubSpot default pipeline stages
+const HUBSPOT_STAGE_MAP: Record<string, string> = {
+  new: 'appointmentscheduled',
+  contacted: 'qualifiedtobuy',
+  qualified: 'presentationscheduled',
+  booked: 'decisionmakerboughtin',
+  completed: 'closedwon',
+  appointmentscheduled: 'appointmentscheduled',
+  qualifiedtobuy: 'qualifiedtobuy',
+  closedwon: 'closedwon',
+  closedlost: 'closedlost',
+};
+
 export class HubSpotAdapter extends BaseCrmAdapter {
   readonly provider = 'hubspot' as const;
   private client: Client;
@@ -76,7 +89,7 @@ export class HubSpotAdapter extends BaseCrmAdapter {
 
       const properties: Record<string, string> = {
         dealname: data.title,
-        dealstage: data.stage || 'appointmentscheduled',
+        dealstage: HUBSPOT_STAGE_MAP[data.stage || ''] || 'appointmentscheduled',
         pipeline: 'default',
       };
 
@@ -283,7 +296,8 @@ export class HubSpotAdapter extends BaseCrmAdapter {
 
   async refreshTokens(tokens: CrmOAuthTokens): Promise<CrmOAuthTokens> {
     if (!tokens.refreshToken) {
-      throw new Error('No refresh token available for HubSpot');
+      // Private App tokens don't expire and have no refresh token
+      return tokens;
     }
 
     const body = new URLSearchParams({
