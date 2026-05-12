@@ -38,11 +38,33 @@ class TokenBucket {
 interface RetryableError extends Error {
   status?: number;
   statusCode?: number;
+  // HubSpot SDK ApiException exposes the HTTP status as `code`.
+  code?: number;
   response?: { status?: number };
 }
 
 function getStatusCode(error: RetryableError): number | undefined {
-  return error.status ?? error.statusCode ?? error.response?.status;
+  return error.status ?? error.statusCode ?? error.code ?? error.response?.status;
+}
+
+/**
+ * Convert any thrown error from an adapter call into a typed CrmResult.
+ * Extracts the HTTP status code if available; preserves the original message.
+ */
+export function errorToCrmResult(error: unknown): {
+  success: false;
+  error: string;
+  rawResponse?: unknown;
+} {
+  const e = error as RetryableError & { body?: unknown; message?: string };
+  const status = getStatusCode(e);
+  const reason =
+    e?.message && e.message !== 'An error occurred.'
+      ? e.message
+      : status
+        ? `HTTP ${status}`
+        : 'Unknown error';
+  return { success: false, error: reason, rawResponse: e?.body };
 }
 
 export abstract class BaseCrmAdapter implements ICrmAdapter {

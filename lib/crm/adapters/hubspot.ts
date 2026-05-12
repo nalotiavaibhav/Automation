@@ -1,5 +1,5 @@
 import { Client } from '@hubspot/api-client';
-import { BaseCrmAdapter } from '../base-adapter';
+import { BaseCrmAdapter, errorToCrmResult } from '../base-adapter';
 import type {
   CrmContact,
   CrmDeal,
@@ -37,170 +37,203 @@ const HUBSPOT_STAGE_MAP: Record<string, string> = {
   closedlost: 'closedlost',
 };
 
+export interface HubSpotAdapterOptions {
+  /**
+   * Override the HubSpot API base URL. Used by the mock-server test harness
+   * (scripts/hubspot-mock.ts) to redirect SDK calls at a local stub. Leave
+   * undefined in production — the SDK defaults to https://api.hubapi.com.
+   */
+  basePath?: string;
+}
+
 export class HubSpotAdapter extends BaseCrmAdapter {
   readonly provider = 'hubspot' as const;
   private client: Client;
+  private readonly basePath: string | undefined;
 
-  constructor(tokens: CrmOAuthTokens) {
+  constructor(tokens: CrmOAuthTokens, options: HubSpotAdapterOptions = {}) {
     super({ maxRequestsPerWindow: 100, windowMs: 10_000 });
     this.setTokens(tokens);
-    this.client = new Client({ accessToken: tokens.accessToken });
+    this.basePath = options.basePath;
+    this.client = new Client({
+      accessToken: tokens.accessToken,
+      ...(this.basePath ? { basePath: this.basePath } : {}),
+    });
   }
 
   private updateClient(accessToken: string): void {
-    this.client = new Client({ accessToken });
+    this.client = new Client({
+      accessToken,
+      ...(this.basePath ? { basePath: this.basePath } : {}),
+    });
   }
 
   // ── Contacts ──────────────────────────────────────────────────────────
 
   async createContact(data: CrmContact): Promise<CrmResult> {
-    return this.makeRequest(async () => {
-      const accessToken = await this.ensureValidToken();
-      this.updateClient(accessToken);
+    try {
+      return await this.makeRequest(async () => {
+        const accessToken = await this.ensureValidToken();
+        this.updateClient(accessToken);
 
-      const properties: Record<string, string> = {
-        firstname: data.firstName,
-        lastname: data.lastName,
-        phone: data.phone,
-        lifecyclestage: 'lead',
-      };
+        const properties: Record<string, string> = {
+          firstname: data.firstName,
+          lastname: data.lastName,
+          phone: data.phone,
+          lifecyclestage: 'lead',
+        };
 
-      if (data.email) properties.email = data.email;
-      if (data.address) properties.address = data.address;
-      if (data.city) properties.city = data.city;
-      if (data.state) properties.state = data.state;
-      if (data.zip) properties.zip = data.zip;
+        if (data.email) properties.email = data.email;
+        if (data.address) properties.address = data.address;
+        if (data.city) properties.city = data.city;
+        if (data.state) properties.state = data.state;
+        if (data.zip) properties.zip = data.zip;
 
-      const response = await this.client.crm.contacts.basicApi.create({
-        properties,
-        associations: [],
+        const response = await this.client.crm.contacts.basicApi.create({
+          properties,
+          associations: [],
+        });
+
+        return { success: true, externalId: response.id };
       });
-
-      return { success: true, externalId: response.id };
-    });
+    } catch (err) {
+      return errorToCrmResult(err);
+    }
   }
 
   // ── Deals ─────────────────────────────────────────────────────────────
 
   async createDeal(data: CrmDeal): Promise<CrmResult> {
-    return this.makeRequest(async () => {
-      const accessToken = await this.ensureValidToken();
-      this.updateClient(accessToken);
+    try {
+      return await this.makeRequest(async () => {
+        const accessToken = await this.ensureValidToken();
+        this.updateClient(accessToken);
 
-      const properties: Record<string, string> = {
-        dealname: data.title,
-        dealstage: HUBSPOT_STAGE_MAP[data.stage || ''] || 'appointmentscheduled',
-        pipeline: 'default',
-      };
+        const properties: Record<string, string> = {
+          dealname: data.title,
+          dealstage: HUBSPOT_STAGE_MAP[data.stage || ''] || 'appointmentscheduled',
+          pipeline: 'default',
+        };
 
-      if (data.estimatedValue !== undefined) {
-        properties.amount = String(data.estimatedValue);
-      }
-      if (data.description) properties.description = data.description;
+        if (data.estimatedValue !== undefined) {
+          properties.amount = String(data.estimatedValue);
+        }
+        if (data.description) properties.description = data.description;
 
-      const response = await this.client.crm.deals.basicApi.create({
-        properties,
-        associations: [],
+        const response = await this.client.crm.deals.basicApi.create({
+          properties,
+          associations: [],
+        });
+
+        // Associate the deal with the contact via the v4 associations API
+        if (data.externalContactId) {
+          await this.client.crm.associations.v4.basicApi.createDefault(
+            'deals',
+            response.id,
+            'contacts',
+            data.externalContactId,
+          );
+        }
+
+        return { success: true, externalId: response.id };
       });
-
-      // Associate the deal with the contact via the v4 associations API
-      if (data.externalContactId) {
-        await this.client.crm.associations.v4.basicApi.createDefault(
-          'deals',
-          response.id,
-          'contacts',
-          data.externalContactId,
-        );
-      }
-
-      return { success: true, externalId: response.id };
-    });
+    } catch (err) {
+      return errorToCrmResult(err);
+    }
   }
 
   // ── Call Logging ──────────────────────────────────────────────────────
 
   async logCall(data: CrmCallLog): Promise<CrmResult> {
-    return this.makeRequest(async () => {
-      const accessToken = await this.ensureValidToken();
-      this.updateClient(accessToken);
+    try {
+      return await this.makeRequest(async () => {
+        const accessToken = await this.ensureValidToken();
+        this.updateClient(accessToken);
 
-      const timestampMs = String(new Date(data.timestamp).getTime());
-      const durationMs = String(data.duration * 1_000); // duration in seconds -> ms
+        const timestampMs = String(new Date(data.timestamp).getTime());
+        const durationMs = String(data.duration * 1_000); // duration in seconds -> ms
 
-      const properties: Record<string, string> = {
-        hs_timestamp: timestampMs,
-        hs_call_title: 'AI Receptionist Call',
-        hs_call_duration: durationMs,
-        hs_call_status: 'COMPLETED',
-        hs_call_direction: data.direction === 'inbound' ? 'INBOUND' : 'OUTBOUND',
-      };
+        const properties: Record<string, string> = {
+          hs_timestamp: timestampMs,
+          hs_call_title: 'AI Receptionist Call',
+          hs_call_duration: durationMs,
+          hs_call_status: 'COMPLETED',
+          hs_call_direction: data.direction === 'inbound' ? 'INBOUND' : 'OUTBOUND',
+        };
 
-      if (data.transcript) {
-        properties.hs_call_body = data.transcript;
-      } else if (data.summary) {
-        properties.hs_call_body = data.summary;
-      }
-      if (data.recordingUrl) {
-        properties.hs_call_recording_url = data.recordingUrl;
-      }
+        if (data.transcript) {
+          properties.hs_call_body = data.transcript;
+        } else if (data.summary) {
+          properties.hs_call_body = data.summary;
+        }
+        if (data.recordingUrl) {
+          properties.hs_call_recording_url = data.recordingUrl;
+        }
 
-      const response = await this.client.crm.objects.calls.basicApi.create({
-        properties,
-        associations: [],
+        const response = await this.client.crm.objects.calls.basicApi.create({
+          properties,
+          associations: [],
+        });
+
+        // Associate the call with the contact via the v4 associations API
+        if (data.externalContactId) {
+          await this.client.crm.associations.v4.basicApi.createDefault(
+            'calls',
+            response.id,
+            'contacts',
+            data.externalContactId,
+          );
+        }
+
+        return { success: true, externalId: response.id };
       });
-
-      // Associate the call with the contact via the v4 associations API
-      if (data.externalContactId) {
-        await this.client.crm.associations.v4.basicApi.createDefault(
-          'calls',
-          response.id,
-          'contacts',
-          data.externalContactId,
-        );
-      }
-
-      return { success: true, externalId: response.id };
-    });
+    } catch (err) {
+      return errorToCrmResult(err);
+    }
   }
 
   // ── Appointments / Meetings ───────────────────────────────────────────
 
   async bookAppointment(data: CrmAppointment): Promise<CrmResult> {
-    return this.makeRequest(async () => {
-      const accessToken = await this.ensureValidToken();
-      this.updateClient(accessToken);
+    try {
+      return await this.makeRequest(async () => {
+        const accessToken = await this.ensureValidToken();
+        this.updateClient(accessToken);
 
-      const startMs = String(new Date(data.startTime).getTime());
-      const endMs = String(new Date(data.endTime).getTime());
+        const startMs = String(new Date(data.startTime).getTime());
+        const endMs = String(new Date(data.endTime).getTime());
 
-      const properties: Record<string, string> = {
-        hs_meeting_title: data.title,
-        hs_meeting_start_time: startMs,
-        hs_meeting_end_time: endMs,
-        hs_meeting_outcome: 'SCHEDULED',
-        hs_timestamp: startMs,
-      };
+        const properties: Record<string, string> = {
+          hs_meeting_title: data.title,
+          hs_meeting_start_time: startMs,
+          hs_meeting_end_time: endMs,
+          hs_meeting_outcome: 'SCHEDULED',
+          hs_timestamp: startMs,
+        };
 
-      if (data.description) properties.hs_meeting_body = data.description;
-      if (data.location) properties.hs_meeting_location = data.location;
+        if (data.description) properties.hs_meeting_body = data.description;
+        if (data.location) properties.hs_meeting_location = data.location;
 
-      const response = await this.client.crm.objects.meetings.basicApi.create({
-        properties,
-        associations: [],
+        const response = await this.client.crm.objects.meetings.basicApi.create({
+          properties,
+          associations: [],
+        });
+
+        // Associate the meeting with the contact via the v4 associations API
+        if (data.externalContactId) {
+          await this.client.crm.associations.v4.basicApi.createDefault(
+            'meetings',
+            response.id,
+            'contacts',
+            data.externalContactId,
+          );
+        }
+
+        return { success: true, externalId: response.id };
       });
-
-      // Associate the meeting with the contact via the v4 associations API
-      if (data.externalContactId) {
-        await this.client.crm.associations.v4.basicApi.createDefault(
-          'meetings',
-          response.id,
-          'contacts',
-          data.externalContactId,
-        );
-      }
-
-      return { success: true, externalId: response.id };
-    });
+    } catch (err) {
+      return errorToCrmResult(err);
+    }
   }
 
   // ── Connection Status ─────────────────────────────────────────────────

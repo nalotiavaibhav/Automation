@@ -9,6 +9,7 @@
     "lint": "eslint",
     "postinstall": "fumadocs-mdx",
     "test:preflight": "tsx scripts/preflight.ts",
+    "test:hubspot:mock": "tsx scripts/hubspot-mock.ts",
     "test:hubspot:smoke": "tsx scripts/hubspot-smoke.ts",
     "test:hubspot:edge": "tsx scripts/hubspot-edge.ts",
     "test:hubspot:cleanup": "tsx scripts/hubspot-cleanup.ts",

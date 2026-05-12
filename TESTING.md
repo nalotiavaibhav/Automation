@@ -17,12 +17,15 @@ This guide is written for someone who has **never set up a HubSpot dev account b
 When you're done you'll be able to run:
 
 ```bash
+npm run test:hubspot:mock     # NO CREDENTIALS NEEDED — runs against a local mock
 npm run test:preflight        # Verifies env + scopes
 npm run test:hubspot:smoke    # Happy-path: create contact + deal + call + meeting
 npm run test:hubspot:edge     # 15 edge cases (auth fail, bad input, concurrency, etc.)
 npm run test:webhook          # Simulates a Vapi webhook against your running dev server
 npm run test:hubspot:cleanup  # Deletes every test record (idempotent, safe to repeat)
 ```
+
+> **Quickest sanity check (no credentials needed):** run `npm run test:hubspot:mock` first. It spins up a local HTTP server that pretends to be HubSpot and runs the real adapter against it — proves the request shapes, response parsing, retry logic, and error paths in ~5 seconds. Use this in CI.
 
 ---
 
@@ -85,6 +88,22 @@ You should see ~6 green checks. If anything is red, the error message tells you 
 ---
 
 ## 3. The test scripts
+
+### 3.0 Mock test — `npm run test:hubspot:mock` *(no credentials needed)*
+
+Runs in ~5 seconds. Spins up a local HTTP server (random port, 127.0.0.1) that returns canned HubSpot response shapes, then runs the real `HubSpotAdapter` against it via the SDK's `basePath` config. Verifies:
+
+- **Request shape** — POST body properties match what HubSpot expects (`firstname`, `dealstage`, `hs_call_duration` in ms, `hs_meeting_start_time` in ms, etc.)
+- **Optional-field handling** — empty/undefined fields are omitted, not sent as empty strings
+- **Deal stage mapping** — all 5 generic stages (`new`/`contacted`/`qualified`/`booked`/`completed`) map to the right HubSpot stage IDs
+- **Unknown stage fallback** — defaults to `appointmentscheduled` instead of crashing
+- **Auth header** — every request carries `Authorization: Bearer <token>`
+- **Error paths** — 401/500 from HubSpot → adapter returns `{ success: false, error }` instead of throwing
+- **Retry logic** — 429 then 200 → adapter retries with backoff and succeeds. 500 × 4 → exhausts retries and returns failure.
+
+This is the test to wire into CI. It catches structural regressions (someone bumps the SDK, the adapter accidentally drops a property, the retry detection breaks) without anyone needing a HubSpot account.
+
+What it does NOT cover: anything HubSpot might reject that the mock would accept (real-world property validation, scope errors, rate-limit specifics). For that, sections 3.2–3.4 below.
 
 ### 3.1 Preflight — `npm run test:preflight`
 
