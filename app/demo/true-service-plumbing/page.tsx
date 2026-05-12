@@ -426,17 +426,29 @@ function LiveCallsSection() {
   }
 
   if (error) {
+    const isConfigError = /VAPI_PRIVATE_KEY|not configured/i.test(error);
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-red-200 bg-red-50 py-10 text-center">
-        <PhoneMissed className="h-8 w-8 text-red-400" />
-        <p className="text-sm font-medium text-red-700">{error}</p>
-        <button
-          onClick={fetchCalls}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-red-700"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          Retry
-        </button>
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 py-10 text-center">
+        <PhoneMissed className="h-8 w-8 text-amber-400" />
+        <p className="text-sm font-medium text-amber-800">
+          {isConfigError
+            ? 'Vapi integration is not configured on this deployment.'
+            : 'Could not load live calls.'}
+        </p>
+        <p className="text-xs text-amber-700/80 max-w-md">
+          {isConfigError
+            ? 'Set VAPI_PRIVATE_KEY in your environment to enable real-time call data here.'
+            : error}
+        </p>
+        {!isConfigError && (
+          <button
+            onClick={fetchCalls}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Retry
+          </button>
+        )}
       </div>
     );
   }
@@ -445,7 +457,10 @@ function LiveCallsSection() {
     return (
       <div className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 py-10 text-center">
         <Headphones className="h-8 w-8 text-slate-300" />
-        <p className="text-sm text-slate-500">No calls recorded yet. Connect your Vapi account to see live data.</p>
+        <p className="text-sm font-medium text-slate-600">Vapi connected — no calls yet.</p>
+        <p className="text-xs text-slate-500 max-w-md">
+          Once your AI receptionist takes a call, it will appear here in real time. Try dialing your Vapi number to see it work.
+        </p>
       </div>
     );
   }
